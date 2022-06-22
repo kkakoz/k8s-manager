@@ -63,3 +63,17 @@ func (item *PodHandler) Apply(ctx echo.Context) error {
 	}
 	return ctx.JSON(200, nil)
 }
+
+func (item *PodHandler) Logs(ctx echo.Context) error {
+	req := &request.PodLogReq{}
+	if err := ctx.Bind(req); err != nil {
+		return err
+	}
+	logs, err := item.podLogic.GetLog(mdctx.NewCtx(ctx.Request()), req)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(200, map[string]interface{}{
+		"logs": logs,
+	})
+}

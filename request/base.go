@@ -9,8 +9,8 @@ type ListReq struct {
 }
 
 type DeleteReq struct {
-	Name      string `url:"name"`
-	Namespace string `json:"namespace"`
+	Name      string `uri:"name"`
+	Namespace string `form:"namespace"`
 }
 
 type ApplyReq struct {

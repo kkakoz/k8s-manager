@@ -17,6 +17,7 @@ func (u podRouter) AddRouter(e *echo.Echo) {
 	podG := e.Group("/api/pods")
 	{
 		podG.GET("", u.handler.List)
+		podG.GET("/:name/logs", u.handler.Logs)
 		podG.POST("", u.handler.Add)
 		podG.DELETE("/:name", u.handler.Delete)
 		podG.PUT("/", u.handler.Apply)

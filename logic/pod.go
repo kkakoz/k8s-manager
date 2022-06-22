@@ -1,13 +1,15 @@
 package logic
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
+	"io"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	applyv1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -47,11 +49,31 @@ func (item *PodLogic) Delete(ctx context.Context, req *request.DeleteReq) error 
 }
 
 func (item *PodLogic) Apply(ctx context.Context, req *request.ApplyReq) error {
-	conf := &applyv1.PodApplyConfiguration{}
+	conf := &corev1.Pod{}
 	err := json.Unmarshal([]byte(req.Content), conf)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	_, err = item.client.CoreV1().Pods(req.Namespace).Apply(ctx, conf, metav1.ApplyOptions{})
+	_, err = item.client.CoreV1().Pods(req.Namespace).Update(ctx, conf, metav1.UpdateOptions{})
 	return errors.WithStack(err)
+}
+
+var defaultTailLen int64 = 100
+
+func (item *PodLogic) GetLog(ctx context.Context, req *request.PodLogReq) (string, error) {
+
+	logs, err := item.client.CoreV1().Pods(req.Namespace).GetLogs(req.Name, &corev1.PodLogOptions{
+		Container: req.ContainerName,
+		TailLines: lo.Ternary(req.TailLien == 0, &defaultTailLen, &req.TailLien),
+	}).Stream(ctx)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer logs.Close()
+	buf := &bytes.Buffer{}
+	_, err = io.Copy(buf, logs)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return buf.String(), err
 }

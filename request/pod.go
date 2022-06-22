@@ -10,3 +10,10 @@ type PodAddReq struct {
 	Containers []corev1.Container `json:"containers"`
 	Labels     map[string]string  `json:"labels"`
 }
+
+type PodLogReq struct {
+	Namespace     string `form:"namespace"`
+	Name          string `uri:"name"`
+	ContainerName string `form:"container_name"`
+	TailLien      int64  `form:"tail_lien"`
+}
