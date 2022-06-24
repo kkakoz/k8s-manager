@@ -7,10 +7,10 @@ import (
 )
 
 type NsHandler struct {
-	nsLogic *logic.NsLogic
+	nsLogic *logic.NSLogic
 }
 
-func NewNsHandler(nsLogic *logic.NsLogic) *NsHandler {
+func NewNsHandler(nsLogic *logic.NSLogic) *NsHandler {
 	return &NsHandler{nsLogic: nsLogic}
 }
 

@@ -8,15 +8,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type NsLogic struct {
+type NSLogic struct {
 	client *kubernetes.Clientset
 }
 
-func NewNsLogic(clientset *kubernetes.Clientset) *NsLogic {
-	return &NsLogic{clientset}
+func NewNsLogic(clientset *kubernetes.Clientset) *NSLogic {
+	return &NSLogic{clientset}
 }
 
-func (item *NsLogic) Add(ctx context.Context, name string) error {
+func (item *NSLogic) Add(ctx context.Context, name string) error {
 	_, err := item.client.CoreV1().Namespaces().Create(ctx, &v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
@@ -25,7 +25,7 @@ func (item *NsLogic) Add(ctx context.Context, name string) error {
 	return err
 }
 
-func (item *NsLogic) List(ctx context.Context) (*v1.NamespaceList, error) {
+func (item *NSLogic) List(ctx context.Context) (*v1.NamespaceList, error) {
 	list, err := item.client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	return list, errors.WithStack(err)
 }

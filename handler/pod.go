@@ -57,7 +57,7 @@ func (item *PodHandler) Apply(ctx echo.Context) error {
 	if err := ctx.Bind(req); err != nil {
 		return err
 	}
-	err := item.podLogic.Apply(mdctx.NewCtx(ctx.Request()), req)
+	err := item.podLogic.Update(mdctx.NewCtx(ctx.Request()), req)
 	if err != nil {
 		return err
 	}
@@ -76,4 +76,16 @@ func (item *PodHandler) Logs(ctx echo.Context) error {
 	return ctx.JSON(200, map[string]interface{}{
 		"logs": logs,
 	})
+}
+
+func (item *PodHandler) Terminal(ctx echo.Context) error {
+	req := &request.PodTerminalReq{}
+	if err := ctx.Bind(req); err != nil {
+		return err
+	}
+	err := item.podLogic.Terminal(mdctx.NewCtx(ctx.Request()), ctx, req)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -21,5 +21,6 @@ func (u podRouter) AddRouter(e *echo.Echo) {
 		podG.POST("", u.handler.Add)
 		podG.DELETE("/:name", u.handler.Delete)
 		podG.PUT("/", u.handler.Apply)
+		podG.GET("/:name/terminal", u.handler.Terminal)
 	}
 }

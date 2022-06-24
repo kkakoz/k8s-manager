@@ -7,4 +7,4 @@ import (
 
 var Provider = fx.Options(handlerProvider, logic.Provider)
 
-var handlerProvider = fx.Provide(NewPodHandler, NewNsHandler, NewDeploymentHandler)
+var handlerProvider = fx.Provide(NewPodHandler, NewNsHandler, NewDeploymentHandler, NewSecretHandler)
