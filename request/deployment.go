@@ -9,3 +9,8 @@ type DeploymentAddReq struct {
 	Replicas   int32              `json:"replicas"`
 	Containers []corev1.Container `json:"containers"`
 }
+
+type DeploymentRestartReq struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+}

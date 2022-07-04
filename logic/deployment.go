@@ -2,14 +2,17 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	"k8s-manager/pkg/mdctx"
 	"k8s-manager/request"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/kubernetes"
+	"time"
 )
 
 type DeploymentLogic struct {
@@ -69,5 +72,26 @@ func (item *DeploymentLogic) Update(ctx context.Context, req *request.ApplyReq) 
 		return errors.WithStack(err)
 	}
 	_, err = item.client.AppsV1().Deployments(req.Namespace).Update(ctx, conf, metav1.UpdateOptions{})
+	return errors.WithStack(err)
+}
+
+func (item *DeploymentLogic) Restart(ctx context.Context, req *request.DeploymentRestartReq) error {
+	patchData := map[string]interface{}{
+		"spec": map[string]interface{}{
+			"template": map[string]interface{}{
+				"metadata": map[string]interface{}{
+					"annotations": map[string]interface{}{
+						"www.example.com/restartedAt": time.Now().Format(time.Stamp),
+					},
+				},
+			},
+		},
+	}
+	data, err := json.Marshal(patchData)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	res, err := item.client.AppsV1().Deployments(req.Namespace).Patch(ctx, req.Name, types.MergePatchType, data, metav1.PatchOptions{})
+	fmt.Println(res)
 	return errors.WithStack(err)
 }

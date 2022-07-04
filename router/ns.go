@@ -14,9 +14,9 @@ func NewNsRouter(handler *handler.NsHandler) *nsRouter {
 }
 
 func (u nsRouter) AddRouter(e *echo.Echo) {
-	nsG := e.Group("/api/ns")
+	group := e.Group("/api/ns")
 	{
-		nsG.GET("", u.handler.List)
-		nsG.POST("", u.handler.Add)
+		group.GET("", u.handler.List)
+		group.POST("", u.handler.Add)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"k8s-manager/pkg/mdctx"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,29 +20,28 @@ func NewServiceLogic(clientset *kubernetes.Clientset) *ServiceLogic {
 	return &ServiceLogic{clientset}
 }
 
-func (item *ServiceLogic) Add(ctx context.Context, serviceName string, selector map[string]string, port, nodePort int32) error {
-	item.client.CoreV1().Services("").Create(ctx, &corev1.Service{
+func (item *ServiceLogic) Add(ctx context.Context, req *request.ServiceAddReq) error {
+	_, err := item.client.CoreV1().Services("").Create(ctx, &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: serviceName,
+			Name: req.Name,
 		},
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
 				Name:     "http",
-				Port:     port,
-				NodePort: nodePort,
+				Port:     req.Port,
+				NodePort: req.NodePort,
 			},
 			},
-			Selector: selector,
+			Selector: req.Selector,
 			Type:     corev1.ServiceTypeNodePort,
 		},
 		Status: corev1.ServiceStatus{},
 	}, metav1.CreateOptions{})
-	return nil
+	return errors.WithStack(err)
 }
 
 func (item *ServiceLogic) List(ctx context.Context, req *request.ListReq) (*corev1.ServiceList, error) {
-	ns := ctx.Value("ns").(string)
-	list, err := item.client.CoreV1().Services(ns).List(ctx, metav1.ListOptions{
+	list, err := item.client.CoreV1().Services(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{
 		LabelSelector: req.Label,
 		FieldSelector: req.Field,
 		Limit:         req.Limit,

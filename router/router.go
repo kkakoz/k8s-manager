@@ -10,7 +10,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewHttp(logger *zap.Logger, pod *podRouter, ns *nsRouter, deployment *deploymentRouter, secret *secretRouter) http.Handler {
+func NewHttp(logger *zap.Logger, pod *podRouter, ns *nsRouter, deployment *deploymentRouter, secret *secretRouter, service *serviceRouter, ingress *ingressRouter) http.Handler {
 	e := echo.New()
 	e.Binder = echox.NewBinder()
 	e.Validator = echox.NewValidator()
@@ -21,7 +21,9 @@ func NewHttp(logger *zap.Logger, pod *podRouter, ns *nsRouter, deployment *deplo
 	ns.AddRouter(e)
 	deployment.AddRouter(e)
 	secret.AddRouter(e)
+	service.AddRouter(e)
+	ingress.AddRouter(e)
 	return e
 }
 
-var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter)
+var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter, NewServiceRouter, NewIngressRouter)

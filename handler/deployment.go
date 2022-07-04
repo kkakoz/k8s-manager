@@ -63,3 +63,15 @@ func (item *DeploymentHandler) Update(ctx echo.Context) error {
 	}
 	return ctx.JSON(200, nil)
 }
+
+func (item *DeploymentHandler) Restart(ctx echo.Context) error {
+	req := &request.DeploymentRestartReq{}
+	if err := ctx.Bind(req); err != nil {
+		return err
+	}
+	err := item.deploymentLogic.Restart(mdctx.NewCtx(ctx.Request()), req)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(200, nil)
+}

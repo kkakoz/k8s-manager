@@ -14,11 +14,12 @@ func NewDeploymentRouter(handler *handler.DeploymentHandler) *deploymentRouter {
 }
 
 func (u deploymentRouter) AddRouter(e *echo.Echo) {
-	podG := e.Group("/api/deployments")
+	group := e.Group("/api/deployments")
 	{
-		podG.GET("", u.handler.List)
-		podG.POST("", u.handler.Add)
-		podG.DELETE("/:name", u.handler.Delete)
-		podG.PUT("/", u.handler.Update)
+		group.GET("", u.handler.List)
+		group.POST("", u.handler.Add)
+		group.DELETE("/:name", u.handler.Delete)
+		group.PUT("/", u.handler.Update)
+		group.PUT("/restart", u.handler.Restart)
 	}
 }
