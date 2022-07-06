@@ -8,6 +8,8 @@ import (
 	"k8s-manager/pkg/app"
 	"k8s-manager/pkg/conf"
 	"k8s-manager/pkg/logger"
+	"k8s-manager/pkg/redis"
+	"k8s-manager/repo"
 	"k8s-manager/router"
 	"k8s-manager/server"
 	"log"
@@ -26,9 +28,11 @@ func main() {
 	fx.New(
 		handler.Provider,
 		server.Provider,
+		repo.Provider,
 		router.Provider,
 		logger.Provider,
 		k8s.Provider,
+		redis.Provider,
 		fx.Provide(NewApp),
 		fx.Supply(viper.GetViper()),
 		fx.Populate(&app),

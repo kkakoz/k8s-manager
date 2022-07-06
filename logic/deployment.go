@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/kubernetes"
+	"strings"
 	"time"
 )
 
@@ -25,6 +26,15 @@ func NewDeploymentLogic(clientset *kubernetes.Clientset) *DeploymentLogic {
 
 func (item *DeploymentLogic) Add(ctx context.Context, req *request.DeploymentAddReq) error {
 	// 实例化一个数据结构
+	labels := strings.Split(req.Labels, ";")
+	specLabels := map[string]string{}
+	for _, label := range labels {
+		split := strings.Split(label, "=")
+		if len(split) == 2 {
+			specLabels[strings.TrimSpace(split[0])] = strings.TrimSpace(split[1])
+		}
+
+	}
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: req.Name,
@@ -32,12 +42,12 @@ func (item *DeploymentLogic) Add(ctx context.Context, req *request.DeploymentAdd
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &req.Replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: req.Labels,
+				MatchLabels: specLabels,
 			},
 
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: req.Labels,
+					Labels: specLabels,
 				},
 				Spec: corev1.PodSpec{
 					Containers: req.Containers,

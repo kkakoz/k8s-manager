@@ -10,20 +10,26 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewHttp(logger *zap.Logger, pod *podRouter, ns *nsRouter, deployment *deploymentRouter, secret *secretRouter, service *serviceRouter, ingress *ingressRouter) http.Handler {
+func NewHttp(logger *zap.Logger, routers []Router) http.Handler {
 	e := echo.New()
 	e.Binder = echox.NewBinder()
 	e.Validator = echox.NewValidator()
 	e.HTTPErrorHandler = echox.ErrHandler(logger)
 	e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
 	e.Debug = true
-	pod.AddRouter(e)
-	ns.AddRouter(e)
-	deployment.AddRouter(e)
-	secret.AddRouter(e)
-	service.AddRouter(e)
-	ingress.AddRouter(e)
+	for _, router := range routers {
+		router.AddRouter(e)
+	}
 	return e
 }
 
-var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter, NewServiceRouter, NewIngressRouter)
+type Router interface {
+	AddRouter(e *echo.Echo)
+}
+
+func Routers(pod *podRouter, ns *nsRouter, deployment *deploymentRouter,
+	secret *secretRouter, service *serviceRouter, ingress *ingressRouter, user *UserRouter) []Router {
+	return []Router{pod, ns, deployment, secret, service, ingress, user}
+}
+
+var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter, NewServiceRouter, NewIngressRouter, NewUserRouter)

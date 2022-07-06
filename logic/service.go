@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"k8s-manager/pkg/mdctx"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	applyv1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"k8s.io/client-go/kubernetes"
+	"strings"
 )
 
 type ServiceLogic struct {
@@ -21,6 +23,14 @@ func NewServiceLogic(clientset *kubernetes.Clientset) *ServiceLogic {
 }
 
 func (item *ServiceLogic) Add(ctx context.Context, req *request.ServiceAddReq) error {
+	selectors := strings.Split(req.Selector, ";")
+	specSelector := map[string]string{}
+	for _, selector := range selectors {
+		split := strings.Split(selector, "=")
+		if len(split) == 2 {
+			specSelector[strings.TrimSpace(split[0])] = strings.TrimSpace(split[1])
+		}
+	}
 	_, err := item.client.CoreV1().Services("").Create(ctx, &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: req.Name,
@@ -32,8 +42,8 @@ func (item *ServiceLogic) Add(ctx context.Context, req *request.ServiceAddReq) e
 				NodePort: req.NodePort,
 			},
 			},
-			Selector: req.Selector,
-			Type:     corev1.ServiceTypeNodePort,
+			Selector: specSelector,
+			Type:     lo.Ternary(req.Type == 1, corev1.ServiceTypeClusterIP, corev1.ServiceTypeNodePort),
 		},
 		Status: corev1.ServiceStatus{},
 	}, metav1.CreateOptions{})
