@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	"k8s-manager/pkg/mdctx"
+	"k8s-manager/local"
 	"k8s-manager/request"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -61,7 +61,7 @@ func (item *DeploymentLogic) Add(ctx context.Context, req *request.DeploymentAdd
 }
 
 func (item *DeploymentLogic) List(ctx context.Context, req *request.ListReq) (*appsv1.DeploymentList, error) {
-	list, err := item.client.AppsV1().Deployments(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{
+	list, err := item.client.AppsV1().Deployments(local.GetNamespace(ctx)).List(ctx, metav1.ListOptions{
 		LabelSelector: req.Label,
 		FieldSelector: req.Field,
 		Limit:         req.Limit,

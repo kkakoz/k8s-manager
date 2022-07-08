@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
-	"k8s-manager/pkg/mdctx"
+	"k8s-manager/local"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,7 +51,7 @@ func (item *ServiceLogic) Add(ctx context.Context, req *request.ServiceAddReq) e
 }
 
 func (item *ServiceLogic) List(ctx context.Context, req *request.ListReq) (*corev1.ServiceList, error) {
-	list, err := item.client.CoreV1().Services(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{
+	list, err := item.client.CoreV1().Services(local.GetNamespace(ctx)).List(ctx, metav1.ListOptions{
 		LabelSelector: req.Label,
 		FieldSelector: req.Field,
 		Limit:         req.Limit,

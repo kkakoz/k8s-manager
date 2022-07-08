@@ -10,7 +10,7 @@ import (
 	"k8s-manager/pkg/redis"
 )
 
-func authority(f echo.HandlerFunc) echo.HandlerFunc {
+func loginAuth(f echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		token := ctx.Request().Header.Get("X-Authorization")
 		if token == "" {
@@ -26,7 +26,14 @@ func authority(f echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return errno.NewErr(401, 401, "请重新登录")
 		}
-		ctx.Request().Header.Add(local.UserLocalKey, result)
+		ctx.SetRequest(ctx.Request().WithContext(local.WithUser(ctx.Request().Context(), user)))
+		return f(ctx)
+	}
+}
+
+func withNamespace(f echo.HandlerFunc) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		ctx.SetRequest(ctx.Request().WithContext(local.WithNamespace(ctx.Request().Context(), ctx.Request().Header.Get(keys.Namespace))))
 		return f(ctx)
 	}
 }

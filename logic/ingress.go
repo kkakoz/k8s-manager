@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"k8s-manager/pkg/mdctx"
+	"k8s-manager/local"
 	v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -18,7 +18,7 @@ func NewIngressLogic(clientset *kubernetes.Clientset) *IngressLogic {
 }
 
 func (item *IngressLogic) Add(ctx context.Context, name string) error {
-	_, err := item.client.NetworkingV1().Ingresses(mdctx.GetNs(ctx)).Create(ctx, &v1.Ingress{
+	_, err := item.client.NetworkingV1().Ingresses(local.GetNamespace(ctx)).Create(ctx, &v1.Ingress{
 		TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{},
 		Spec:       v1.IngressSpec{},
@@ -28,6 +28,6 @@ func (item *IngressLogic) Add(ctx context.Context, name string) error {
 }
 
 func (item *IngressLogic) List(ctx context.Context) (*v1.IngressList, error) {
-	list, err := item.client.NetworkingV1().Ingresses(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{})
+	list, err := item.client.NetworkingV1().Ingresses(local.GetNamespace(ctx)).List(ctx, metav1.ListOptions{})
 	return list, errors.WithStack(err)
 }

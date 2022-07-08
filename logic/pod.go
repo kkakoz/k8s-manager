@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 	"io"
 	"k8s-manager/k8s"
-	"k8s-manager/pkg/mdctx"
+	"k8s-manager/local"
 	"k8s-manager/pkg/ws"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
@@ -47,7 +47,7 @@ func (item *PodLogic) Add(ctx context.Context, req *request.PodAddReq) error {
 }
 
 func (item *PodLogic) List(ctx context.Context, req *request.ListReq) (*corev1.PodList, error) {
-	list, err := item.client.CoreV1().Pods(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{
+	list, err := item.client.CoreV1().Pods(local.GetNamespace(ctx)).List(ctx, metav1.ListOptions{
 		LabelSelector: req.Label,
 		FieldSelector: req.Field,
 		Limit:         req.Limit,

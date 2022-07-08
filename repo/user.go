@@ -17,7 +17,7 @@ type UserRepo struct {
 }
 
 func NewUserRepo(redis *redis.Client) *UserRepo {
-	return &UserRepo{IRepo: ormx.NewRepo[model.User]()}
+	return &UserRepo{IRepo: ormx.NewRepo[model.User](), redis: redis}
 }
 
 func (item *UserRepo) CacheAdd(ctx context.Context, user *model.User) (string, error) {

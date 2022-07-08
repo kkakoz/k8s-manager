@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/kkakoz/ormx/opt"
+	"github.com/pkg/errors"
 	"k8s-manager/model"
 	"k8s-manager/pkg/cryption"
 	"k8s-manager/pkg/errno"
@@ -35,4 +36,14 @@ func (item *UserLogic) Login(ctx context.Context, req *request.LoginReq) (string
 
 func (item *UserLogic) Current(ctx context.Context, token string) (*model.User, error) {
 	return item.userRepo.CacheGet(ctx, token)
+}
+
+func (item *UserLogic) Add(ctx context.Context, req *request.UserAddReq) error {
+	salt := cryption.UUID()
+	err := item.userRepo.Add(ctx, &model.User{
+		Name:     req.Name,
+		Password: cryption.Md5Str(req.Password + salt),
+		Salt:     salt,
+	})
+	return errors.WithStack(err)
 }

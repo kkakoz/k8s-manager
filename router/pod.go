@@ -14,7 +14,7 @@ func NewPodRouter(handler *handler.PodHandler) *podRouter {
 }
 
 func (u podRouter) AddRouter(e *echo.Echo) {
-	podG := e.Group("/api/pods")
+	podG := e.Group("/api/pods", loginAuth)
 	{
 		podG.GET("", u.handler.List)
 		podG.GET("/:name/logs", u.handler.Logs)

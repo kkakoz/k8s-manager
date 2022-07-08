@@ -14,9 +14,12 @@ func NewUserRouter(handler *handler.UserHandler) *UserRouter {
 }
 
 func (u *UserRouter) AddRouter(e *echo.Echo) {
-	g := e.Group("/user")
+
+	e.POST("/api/login", u.handler.Login)
+
+	g := e.Group("/api/users")
 	{
-		g.POST("/login", u.handler.Login)
 		g.GET("/current", u.handler.Current)
+		g.POST("/", u.handler.Add)
 	}
 }

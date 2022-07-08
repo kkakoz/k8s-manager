@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"k8s-manager/pkg/mdctx"
+	"k8s-manager/local"
 	"k8s-manager/request"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +28,6 @@ func (item *SecretLogic) Add(ctx context.Context, req *request.SecretAddReq) err
 }
 
 func (item *SecretLogic) List(ctx context.Context) (*corev1.SecretList, error) {
-	list, err := item.client.CoreV1().Secrets(mdctx.GetNs(ctx)).List(ctx, metav1.ListOptions{})
+	list, err := item.client.CoreV1().Secrets(local.GetNamespace(ctx)).List(ctx, metav1.ListOptions{})
 	return list, errors.WithStack(err)
 }

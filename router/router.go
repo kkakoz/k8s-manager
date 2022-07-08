@@ -1,8 +1,11 @@
 package router
 
 import (
+	"context"
+	"github.com/kkakoz/ormx"
 	"github.com/labstack/echo/middleware"
 	"go.uber.org/zap"
+	"k8s-manager/model"
 	"k8s-manager/pkg/echox"
 	"net/http"
 
@@ -15,7 +18,10 @@ func NewHttp(logger *zap.Logger, routers []Router) http.Handler {
 	e.Binder = echox.NewBinder()
 	e.Validator = echox.NewValidator()
 	e.HTTPErrorHandler = echox.ErrHandler(logger)
-	e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
+	e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig), withNamespace)
+	db := ormx.DB(context.TODO())
+	db.AutoMigrate(&model.User{})
+
 	e.Debug = true
 	for _, router := range routers {
 		router.AddRouter(e)
@@ -32,4 +38,4 @@ func Routers(pod *podRouter, ns *nsRouter, deployment *deploymentRouter,
 	return []Router{pod, ns, deployment, secret, service, ingress, user}
 }
 
-var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter, NewServiceRouter, NewIngressRouter, NewUserRouter)
+var Provider = fx.Provide(NewHttp, NewPodRouter, NewNsRouter, NewDeploymentRouter, NewSecretRouter, NewServiceRouter, NewIngressRouter, NewUserRouter, Routers)

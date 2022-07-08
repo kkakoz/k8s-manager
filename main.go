@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/kkakoz/ormx"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"k8s-manager/handler"
@@ -23,6 +24,10 @@ func NewApp(handler http.Handler, servers []app.Server) *app.Application {
 func main() {
 
 	conf.InitConfig()
+	_, err := ormx.New(viper.GetViper())
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	var app = new(app.Application)
 	fx.New(

@@ -6,9 +6,7 @@ import (
 )
 
 func NewCtx(req *http.Request) context.Context {
-	ctx := req.Context()
-	ns := req.Header.Get(NS)
-	return context.WithValue(ctx, NS, ns)
+	return req.Context()
 }
 
 const (
